@@ -1,0 +1,17 @@
+#num-keys {
+    width: 250px;
+    display: flex;
+    flex-direction: row-reverse;
+    background-color: red;
+    flex-wrap: wrap;
+    justify-content: space-around;
+}
+
+.num-key, .decimal-key {
+    width: 80px;
+}
+
+#num-key-0 {
+    width: 163px;
+    position: relative;
+}
