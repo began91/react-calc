@@ -1,17 +1,24 @@
+#keys {
+    display: flex;
+}
+
 #num-keys {
     width: 250px;
     display: flex;
     flex-direction: row-reverse;
-    background-color: red;
     flex-wrap: wrap;
     justify-content: space-around;
 }
 
-.num-key, .decimal-key {
+.num-key, .decimal-key, .operator-key, .equal-key {
     width: 80px;
 }
 
-#num-key-0 {
-    width: 163px;
-    position: relative;
+#operator-keys {
+    display: flex;
+    flex-direction: column-reverse;
+}
+
+.activeOperator {
+    background-color: slategray;
 }
