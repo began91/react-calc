@@ -2,7 +2,7 @@ import React from 'react';
 import {useSelector} from 'react-redux';
 
 const Result = () => {
-    const result = useSelector(state => state.result);
+    const result = useSelector(state => state.calc.result);
     
     return (
     <div id="result">

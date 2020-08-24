@@ -10,3 +10,7 @@
   flex-direction: column;
   background-color: ivory;
 }
+
+section.calculator {
+  display: flex;
+}

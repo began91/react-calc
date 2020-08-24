@@ -1,6 +1,7 @@
 import React from 'react';
 import { Provider } from 'react-redux';
 import Calculator from './components/Calculator';
+import History from './components/History';
 import store from './store';
 import './App.css';
 
@@ -9,9 +10,14 @@ function App() {
     <Provider store={store} >
       <div className="App">
         <header className="App-header">
-          React Calculator
+          <h2>
+            React Calculator
+          </h2>
         </header>
-        <Calculator />
+        <section className="calculator">
+          <Calculator />
+          <History />
+        </section>
       </div>
     </Provider>
   );

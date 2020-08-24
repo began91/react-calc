@@ -1,17 +1,15 @@
 #keys {
     display: flex;
+    flex-wrap: wrap;
+    width: 160px;
 }
 
 #num-keys {
-    width: 250px;
+    width: 120px;
     display: flex;
     flex-direction: row-reverse;
     flex-wrap: wrap;
     justify-content: space-around;
-}
-
-.num-key, .decimal-key, .operator-key, .equal-key {
-    width: 80px;
 }
 
 #operator-keys {
@@ -19,6 +17,18 @@
     flex-direction: column-reverse;
 }
 
+.num-key, .decimal-key, .operator-key, .equal-key, .clear-key, .neg-key {
+    width: 40px;
+}
+
+.clear-key {
+    font-size: 1.7em;
+    height: 45px;
+    vertical-align: top;
+}
+
 .activeOperator {
     background-color: slategray;
+    border: solid 1px black;
+    margin: 2px 0;
 }

@@ -6,7 +6,7 @@ import './Keys.css'
 const Key = props => {
     const dispatch = useDispatch()
     return (
-    <button key={props.value} className={`${props.type}-key ${ + props.isActive ? '  activeOperator' : ''}`} id={`${props.type}-key-${props.value}`} onClick={(e) => dispatch(handleKey([e, props.type, props.value]))}>{props.value}</button>
+    <button key={props.value} className={`${props.type}-key ${ + props.isActive ? '  activeOperator' : ''}`} id={`${props.type}-key-${props.value}`} onClick={() => dispatch(handleKey([props.type, props.value]))}>{props.value}</button>
     )
 }
 
@@ -46,11 +46,22 @@ const Operators = props => {
     )
 }
 
+const ClearKeys = props => {
+    return (
+        <div id="clear-keys">
+            <Key type="clear" value="C" key="C" />
+            <Key type="clear" value="CE" key="CE" />
+            <Key type="neg" value={"\u00B1"} key="neg" />
+        </div>
+    );
+}
+
 const Keys = () => {
     return (
     <div id="keys">
-        <NumKeyPad/>
+        <NumKeyPad />
         <Operators />
+        <ClearKeys />
     </div>
     )
 }

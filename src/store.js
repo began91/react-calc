@@ -1,4 +1,8 @@
-import {createStore} from 'redux';
+import {configureStore} from '@reduxjs/toolkit';
 import {calcSlice} from './features/calcSlice'
 
-export default createStore(calcSlice.reducer);
+export default configureStore({
+    reducer: {
+        calc: calcSlice.reducer
+    }
+});
