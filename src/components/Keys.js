@@ -35,7 +35,7 @@ const NumKeyPad = () => {
 const operators = ['+','-','*','/'];
 
 const Operators = props => {
-    const activeOperator = useSelector(state => state.operator);
+    const activeOperator = useSelector(state => state.calc.secondOperator || state.calc.firstOperator);
     return (
         <div id="operator-keys">
             {operators.map(operator => {
@@ -57,6 +57,37 @@ const ClearKeys = props => {
 }
 
 const Keys = () => {
+    const dispatch = useDispatch()
+    document.addEventListener('keydown', e => {
+        let type, key;
+        if (Number.isInteger(Number(e.key))) {
+            type='num';
+            key=e.key;
+        } else if (e.key.match(/\./)) {
+            type='decimal';
+            key='.';
+        } else if (e.key.match(/[+*/-]/)) {
+            type='operator';
+            key=e.key;
+        } else if (e.key === 'Backspace' || e.key === 'Delete') {
+            type='clear';
+            key='CE';
+        } else if (e.key === 'Escape') {
+            type='clear';
+            key='C';
+        } else if (e.key === 'Enter' || e.key === '=') {
+            type='equal';
+            key='=';
+        } else if (e.key === 'm') {
+            type='neg'
+            key="\u00B1"
+        }
+        if (type && key) {
+            e.preventDefault();
+        }
+        // console.log(type, key)
+        dispatch(handleKey([type, key]));
+    })
     return (
     <div id="keys">
         <NumKeyPad />

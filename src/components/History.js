@@ -12,8 +12,9 @@ const History = props => {
     const historyList = history?.map((entry, i) => (
         <div className="history-entry" key={i} onClick={() => dispatch(loadHistoryIndex(i))}>
             <span className="history-operations">
-                {entry.operations + ' = '}
+                {entry.firstNumber + (entry.firstOperator ? (entry.firstOperator + entry.secondNumber) : '') + '= '}
             </span>
+            <br/>
             <span className="history-result">
                 {entry.result}
             </span>
@@ -23,7 +24,7 @@ const History = props => {
     return (
         <div id="history">
             <h3>History</h3>
-            {historyList}
+            {historyList.slice(0,5)}
         </div>
     );
 }

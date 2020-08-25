@@ -1,172 +1,165 @@
 import {createSlice} from '@reduxjs/toolkit';
 
 const initialState = {
-    operations: '0',
-    result: '0',
-    firstNumber: null,
+    firstNumber: '0',
     secondNumber: null,
-    operator: null,
-    lastOperation: {
-        firstNumber: null,
-        secondNumber: null,
-        operator: null
-    },
+    firstOperator: null,
+    secondOperator: null,
+    result: null,
+    status: 'fresh',
     history: []
 };
 
-const operators = ['+','-','/','*'];
-
-const lastKeyWasOperator = state => state.operations.slice(-2,-1) === state.operator;
-
-const operationsHasTwoOperators = state => lastKeyWasOperator(state) && [...state.operations].filter(char => operators.includes(char)).length >= 2;
-
 const handleNumKey = (state, key) => {
-    if (state.result.length >=9 && !lastKeyWasOperator(state)) {
-        return state;
-    }
-    if (operationsHasTwoOperators(state)) {
-        state.operations = `${state.result} ${state.operator} ${key.toString()}`;
-        state.result = key.toString();
-        state.lastOperation = initialState.lastOperation;
-    } else if (state.operations==='0' || state.lastOperation.firstNumber) {
-        //if operations is 0 or immediately following a previous operation
-        state.operations = key.toString();
-        state.result = key.toString();
-        state.operator = null;
-        state.lastOperation = initialState.lastOperation;
-    } else if (state.result === '0' && key === 0) {
-        //if the result currently reads 0 and 0 is pressed, do nothing.
-    } else {
-        if (lastKeyWasOperator(state)) { //replace result
-            state.result = key.toString();
-        } else { //append
-            state.result += key.toString();
+    if (state.status.includes('Number')) {
+        if (state[state.status] === '0') {
+            state[state.status] = key.toString();
+        } else if (state[state.status].length < 9) {
+            state[state.status] += key.toString();
         }
-        state.operations += key.toString(); //always append for operations
+    } else if (state.status.includes('Operator')) {
+        state.secondNumber = key.toString();
+        state.status = 'secondNumber';
+        state.firstOperator = state.secondOperator || state.firstOperator;
+        state.secondOperator = null;
+        state.firstNumber = state.result || state.firstNumber;
+    } else {//result or fresh
+        state.firstOperator = null;
+        state.secondNumber = null;
+        state.result = null;
+        state.firstNumber = key.toString();
+        state.status = 'firstNumber';
     }
 }
 
-const handleDecimal = (state, key) => {
-    if (operationsHasTwoOperators(state)) {
-        state.operations = `${state.result} ${state.operator} 0.`;
-        state.result = '0.';
-        state.lastOperation = initialState.lastOperation;
-    } else if (lastKeyWasOperator(state)) {
-        state.result = '0.';
-        state.operations += '0.';
-    } else if (state.lastOperation.firstNumber) {
-        state.result = '0.';
-        state.operations = '0.';
-        state.lastOperation = initialState.lastOperation;
-    } else if (!state.result.includes('.')) {
-        state.result += '.';
-        state.operations += '.';
+const handleDecimal = (state) => {//can probably combine logic with number;
+    if (state.status.includes('Number')) {
+        if (!state[state.status].includes('.') && state[state.status].length <= 8) {
+            state[state.status] += '.';
+        }
+    } else if (state.status.includes('Operator')) {
+        state.secondNumber = '0.';
+        state.status = 'secondNumber';
+        state.firstOperator = state.secondOperator || state.firstOperator;
+        state.secondOperator = null;
+        state.firstNumber = state.result || state.firstNumber;
+    } else {
+        state.firstOperator = null;
+        state.secondNumber = null;
+        state.firstNumber = '0.';
+        state.status = 'firstNumber';
     }
 }
 
 const handleOperator = (state, key) => {
-    if (!state.operator) { //if no operator
-        state.operator = key; //set the operator
-        state.operations += ` ${key} `; //display the operator
-        state.firstNumber = state.result; //store the current number
-        state.lastOperation = initialState.lastOperation;
-    } else if (state.lastOperation.firstNumber) {
-        state.operator = key;
-        state.operations = state.result + ` ${key} `;
+    if (state.status === 'fresh' || state.status === 'firstNumber') {
+        state.status = 'firstOperator';
+        state.firstOperator = key;
+    } else if (state.status === 'secondNumber') {
+        evaluate(state);
+        state.status = 'secondOperator';
+        state.secondOperator = key;
+    } else if (state.status.includes('Operator')) {
+        state[state.status] = key;
+    } else {//result
         state.firstNumber = state.result;
-        state.lastOperation = initialState.lastOperation;
-    } else if (lastKeyWasOperator(state)) { 
-        //the operator was the last thing to be input
-        state.operator = key;
-        state.operations = state.firstNumber + ` ${key} `;
-    } else {
-        handleEqual(state, key);
-        //evaluate operation and set new operator
-        handleOperator(state, key);
+        state.result = null;
+        state.secondNumber = null;
+        state.firstOperator = key;
+        state.status = 'firstOperator';
     }
 }
 
 const handleClear = (state, key) => {
-    if (key === 'C' || state.lastOperation.firstNumber || state.operations.length === 1) {
-        state = Object.assign({}, initialState, state.history);
-    } else if (operationsHasTwoOperators(state)) {
-        [state.firstNumber, state.operator, state.result] = state.operations.split(' ');
-        state.operations = state.operations.slice(0,-3);
-    } else if (lastKeyWasOperator(state)) {
-        state.operations = state.operations.slice(0,-3);
-        state.operator = null;
+    if (key === 'C' || state.status === 'fresh' || (state.status === 'firstNumber' && state.firstNumber.length === 1) || state.status === 'result') {
+        const history = state.history;
+        state = Object.assign({}, initialState, {history});
+    } else if (state.status.includes('Operator')) {
+        state[state.status] = null;
+        state.status = state.status.slice(0,-8) + 'Number';
+    } else {//state = first or second number
+        if (state[state.status].length === 1) {
+            state[state.status] = null;
+            state.status = 'firstOperator';
+        } else {
+            state[state.status] = state[state.status].slice(0,-1);
+        }
     }
     return state;
 }
 
-const evaluate = (a, operator, b) => {
+const evaluate = (state) => {
+    if (state.status === 'result') {
+        state.firstNumber = state.result;
+    } else if (state.status.includes('Operator')) {
+        state.firstNumber = state.result || state.firstNumber;
+        state.secondNumber = state.result || state.firstNumber;
+        state.firstOperator = state.secondOperator || state.firstOperator;
+        state.secondOperator = null;
+    }
+    let a = state.firstNumber;
+    let operator = state.firstOperator;
+    let b = state.secondNumber;
     let result;
-    switch (operator) {
-        case '+':
-            result =  (Number(a) + Number(b));
-            break;
-        case '-':
-            result = (Number(a) - Number(b));
-            break;
-        case '/':
-            if (Number(b) === 0) {
-                return 'Error';
-            } else {
-                result = (Number(a) / Number(b));
-            }
-            break;
-        case '*':
-            result = (Number(a) * Number(b));
-            break;
-        default: 
-            result = Number(a);
-            break;
-    }
-    if (result > 999999999) {
-        return '999999999';
+    if (b==='-') {
+        result = 'Error';
     } else {
-        return String(Number(result.toFixed(8))).slice(0,9);
-    }
-}
-
-const handleEqual = (state, key) => {
-    if (!state.operator || state.lastOperation.firstNumber) { //if the last operation is in memory
-        //repeat the same operation and second number on the result
-        if (state.lastOperation.operator) {
-            state.operations = `${state.result} ${state.lastOperation.operator} ${state.lastOperation.secondNumber}`
+        switch (operator) {
+            case '+':
+                result =  (Number(a) + Number(b));
+                break;
+            case '-':
+                result = (Number(a) - Number(b));
+                break;
+            case '/':
+                if (Number(b) === 0) {
+                    result = 'Error';
+                } else {
+                    result = (Number(a) / Number(b));
+                }
+                break;
+            case '*':
+                result = (Number(a) * Number(b));
+                break;
+            default: 
+                result = Number(a);
+                break;
+            }
         }
-        state.result = evaluate(state.result, state.lastOperation.operator, state.lastOperation.secondNumber);
-        state.lastOperation.firstNumber = state.result;
-    // } else if (!state.operator) { //if there's no operator return the result
-    //     state.result = evaluate(state.result, '', '');
-    //     state.lastOperation.firstNumber = state.result;
-    } else if (state.firstNumber) {//check there is a previous number
-        state.secondNumber = state.result;
-        state.operations = `${state.firstNumber} ${state.operator} ${state.secondNumber}`;
-        state.result = evaluate(state.firstNumber, state.operator, state.secondNumber);
-        state.lastOperation = {
-            firstNumber: state.firstNumber,
-            secondNumber: state.secondNumber,
-            operator: state.operator
-        };
+    if (result > 999999999) {
+        result = '999999999';
+    } else {
+        result = String(Number(result.toFixed(8))).slice(0,9);
     }
-    state.operator = null;
-    const equation = `${state.operations} = ${state.result}`;
+    state.result = result;
+    state.status = 'result';
     state.history.unshift({
         firstNumber: state.firstNumber,
-        operator: state.operator,
+        firstOperator: state.firstOperator,
         secondNumber: state.secondNumber,
-        result: state.result,
-        operations: state.operations,
-        equation
-    })
+        result: state.result
+    });
 }
 
-const handleNeg = (state, key) => {
-    let opArr =  [...state.operations];
-    opArr.splice(-1*state.result.length, 0,'-');
-    state.operations = opArr.join('');
-    state.result = String(Number(state.result) * -1);
+const handleNeg = (state) => {
+    if (state.status === 'fresh') {
+        state.firstNumber = '-';
+        state.status = 'firstNumber';
+    } else if (state.status.includes('Number')) {
+        state[state.status] = String(-1*state[state.status]);
+    } else if (state.status.includes('Operator')) {
+        state.secondNumber = '-';
+        state.status = 'secondNumber';
+        state.firstOperator = state.secondOperator || state.firstOperator;
+        state.secondOperator = null;
+        state.firstNumber = state.result || state.firstNumber;
+    } else {
+        state.firstNumber = String(-1 * state.result);
+        state.firstOperator = null;
+        state.secondNumber = null;
+        state.result = null;
+        state.status = 'firstNumber';
+    }
 }
 
 export const calcSlice = createSlice({
@@ -181,7 +174,7 @@ export const calcSlice = createSlice({
                 handleNumKey(state, key);
             }
             if (type==="decimal") {
-                handleDecimal(state, key);
+                handleDecimal(state);
             }
             if (type==="operator") {
                 handleOperator(state, key);
@@ -190,14 +183,13 @@ export const calcSlice = createSlice({
                 return handleClear(state, key);
             }
             if (type==="equal") {
-                handleEqual(state, key);
+                evaluate(state);
             }
             if (type==="neg") {
-                handleNeg(state, key);
+                handleNeg(state);
             }
         },
         loadHistoryIndex: (state, action) => {
-            console.log(action.payload)
             state = Object.assign({}, state, state.history[action.payload]);
             return state;
         }

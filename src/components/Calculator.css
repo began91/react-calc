@@ -1,9 +1,10 @@
 #result {
     font-size: 2em;
+    margin-top: -8px;
 }
 
-#input {
-    
+#operation-display {
+    font-size: .84em;
 }
 
 button {

@@ -9,6 +9,12 @@
   align-items: center;
   flex-direction: column;
   background-color: ivory;
+  width: 360px;
+  max-width: 50%;
+  margin: 10px auto;
+  padding-bottom: 10px;
+  border: 1px solid peru;
+  border-radius: 5px;
 }
 
 section.calculator {

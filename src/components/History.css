@@ -1,10 +1,11 @@
 #history {
-    width: 160px;
+    min-width: 160px;
+    max-width: 200px;
 }
 
 .history-result {
     font-weight: bold;
-    font-size: 1.5em;
+    font-size: 1.1em;
 }
 
 .history-operations, .history-result {
@@ -15,7 +16,7 @@
 
 .history-entry {
     text-align: right;
-    background-color: gray;
+    background-color: darksalmon;
     border-radius: 5px;
     padding: 2px;
     margin: 2px;

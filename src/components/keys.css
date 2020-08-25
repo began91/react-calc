@@ -19,16 +19,40 @@
 
 .num-key, .decimal-key, .operator-key, .equal-key, .clear-key, .neg-key {
     width: 40px;
+    border-radius: 37%;
+}
+
+.num-key {
+    background-color: lightgreen;
+}
+
+.operator-key {
+    background-color: burlywood;
+}
+
+.decimal-key {
+    background-color: darkseagreen;
 }
 
 .clear-key {
     font-size: 1.7em;
-    height: 45px;
+    height: 43px;
     vertical-align: top;
+    background-color: gold;
+}
+
+.equal-key {
+    background-color: lightcoral;
+}
+
+.neg-key {
+    background-color: lightpink;
+    height: 43px;
 }
 
 .activeOperator {
-    background-color: slategray;
-    border: solid 1px black;
-    margin: 2px 0;
+    background-color: sienna;
+    border: inset;
+    border-color: burlywood;
+    height: 43px;
 }
